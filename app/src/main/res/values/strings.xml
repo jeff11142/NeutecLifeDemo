@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NeutecLife</string>
+    <string name="notification_detail_content">內容資訊</string>
+    <string name="all">全部</string>
+</resources>
