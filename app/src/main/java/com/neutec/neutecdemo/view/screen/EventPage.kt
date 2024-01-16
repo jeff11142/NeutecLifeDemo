@@ -156,7 +156,7 @@ fun LazyColumnOriginal() {
                             blurRadius = 5.dp,
                         )
                         .background(Color.White),
-                    sharedState = sharedState
+                    lazyListState = sharedState
                 )
             }
 

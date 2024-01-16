@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import com.neutec.neutecdemo.ui.theme.NeutecDemoTheme
 import androidx.navigation.compose.rememberNavController
 import com.neutec.neutecdemo.view.screen.LazyColumnOriginal
+import com.neutec.neutecdemo.view.screen.MyScreen
 import com.neutec.neutecdemo.view.screen.main.MainPage
 import com.neutec.neutecdemo.view.screen.notification.NotificationDetailPage
 import com.neutec.neutecdemo.view.screen.notification.NotificationPage
@@ -72,7 +73,8 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Page.Notification.page,
                         ) {
-                            NotificationPage(fullScreenNavController = fullScreenNavController)
+//                            NotificationPage(fullScreenNavController = fullScreenNavController)
+                            MyScreen()
                         }
 
                         composable(

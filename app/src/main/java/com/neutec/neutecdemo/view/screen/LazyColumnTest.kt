@@ -1,5 +1,6 @@
 package com.neutec.neutecdemo.view.screen
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,7 +52,8 @@ import com.neutec.neutecdemo.view.unit.PageTopView
 @Composable
 fun LazyColumnTest() {
     val listState = rememberLazyListState()
-    val sharedState = rememberLazyListState()
+    val categoryListStateOne = rememberLazyListState()
+    val categoryListStateTwo = rememberLazyListState()
 
     // PageTopView
     val pageTopViewTitle = remember {
@@ -83,6 +85,10 @@ fun LazyColumnTest() {
     val itemFirstHeight =
         remember { derivedStateOf { newBooksThisMonthViewHeight.value + booksListHeaderViewHeight.value } }
 
+    val showHidingCategory = remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
         val scrollOffset = listState.firstVisibleItemScrollOffset.toFloat()
         when (listState.firstVisibleItemIndex) {
@@ -94,7 +100,6 @@ fun LazyColumnTest() {
                     pageTopViewTitle.value = ""
                 }
 
-                // PageTopView 背景漸變
                 val alpha = (scrollOffset / (getStatusBarHeight() * 2)).coerceIn(0f, 1f)
                 pageTopViewBackground.value = Color.White.copy(alpha = alpha)
                 showCategoryView.value = false
@@ -103,20 +108,31 @@ fun LazyColumnTest() {
 
             1 -> {
                 showCategoryView.value =
-                    scrollOffset > itemFirstHeight.value - getStatusBarHeight() * 2
+                    scrollOffset > itemFirstHeight.value - getStatusBarHeight() * 2 - 20
 
                 if (scrollOffset > itemFirstHeight.value - getStatusBarHeight() * 2) {
                     opacity.value = 1f
                 } else {
                     opacity.value = 0f
                 }
+
+                pageTopViewBackground.value = Color.White
             }
 
             else -> {
                 showCategoryView.value = true
                 opacity.value = 1f
+                pageTopViewBackground.value = Color.White
             }
         }
+    }
+
+    LaunchedEffect(categoryListStateOne.firstVisibleItemScrollOffset){
+        categoryListStateTwo.scrollToItem(categoryListStateOne.firstVisibleItemIndex, categoryListStateOne.firstVisibleItemScrollOffset)
+    }
+
+    LaunchedEffect(categoryListStateTwo.firstVisibleItemScrollOffset){
+        categoryListStateOne.scrollToItem(categoryListStateTwo.firstVisibleItemIndex, categoryListStateTwo.firstVisibleItemScrollOffset)
     }
 
     Box {
@@ -141,7 +157,7 @@ fun LazyColumnTest() {
                             blurRadius = 5.dp,
                         )
                         .background(Color.White),
-                    sharedState = sharedState
+                    lazyListState = categoryListStateOne
                 )
             }
 
@@ -158,22 +174,21 @@ fun LazyColumnTest() {
                 backIconClickEvent = {
                 }
             )
-            if (showCategoryView.value) {
-                BooksListCategoryView(
-                    booksListCategoryViewHeight = booksListCategoryViewHeight,
-                    modifier = Modifier
-                        .customShadow(
-                            color = Color(0X2E000000),
-                            offsetY = (10).dp,
-                            blurRadius = 5.dp
-                        )
-                        .background(
-                            Color.White,
-                            RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
-                        ),
-                    sharedState = sharedState
-                )
-            }
+            BooksListCategoryView(
+                booksListCategoryViewHeight = booksListCategoryViewHeight,
+                modifier = Modifier
+                    .customShadow(
+                        color = Color(0X2E000000),
+                        offsetY = (10).dp,
+                        blurRadius = 5.dp
+                    )
+                    .background(
+                        Color.White,
+//                        RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+                    ),
+                opacity = opacity,
+                lazyListState = categoryListStateTwo
+            )
         }
     }
 }
@@ -250,6 +265,7 @@ fun NewBooksThisMonthView(newBooksThisMonthViewHeight: MutableState<Int>) {
             .onGloballyPositioned {
                 newBooksThisMonthViewHeight.value = it.size.height
             }
+            .background(Color.White)
     ) {
         Spacer(modifier = Modifier.height(15.dp))
         Text(
@@ -274,6 +290,7 @@ fun NewBooksThisMonthView(newBooksThisMonthViewHeight: MutableState<Int>) {
                 )
             }
         }
+        Spacer(modifier = Modifier.height(15.dp))
     }
 }
 
@@ -281,6 +298,7 @@ fun NewBooksThisMonthView(newBooksThisMonthViewHeight: MutableState<Int>) {
 fun BooksListHeaderView(booksListHeaderViewHeight: MutableState<Int>) {
     Column(modifier = Modifier
         .fillMaxWidth()
+        .background(Color.White)
         .onGloballyPositioned {
             booksListHeaderViewHeight.value = it.size.height
         }) {
@@ -322,8 +340,8 @@ fun BooksListHeaderView(booksListHeaderViewHeight: MutableState<Int>) {
                     modifier = Modifier
                         .wrapContentHeight()
                         .wrapContentWidth()
-                        .clip(RoundedCornerShape(50.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(50.dp))
+                        .clip(RoundedCornerShape(bigRadius))
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(bigRadius))
                         .background(Color.White)
                         .clickable {
                             Log.e("Jeff", "借閱多到少")
@@ -350,10 +368,11 @@ fun BooksListHeaderView(booksListHeaderViewHeight: MutableState<Int>) {
 }
 
 @Composable
+@SuppressLint("ModifierParameter")
 fun BooksListCategoryView(
     booksListCategoryViewHeight: MutableState<Int>,
     opacity: MutableState<Float>? = null,
-    sharedState: LazyListState,
+    lazyListState: LazyListState,
     bottomNeedRadius: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -367,16 +386,16 @@ fun BooksListCategoryView(
             }
             .alpha(opacity)
     ) {
-        Box(modifier = Modifier.fillMaxWidth().height(20.dp).background(Color.White)){
+        val fillMaxWidthModifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
 
-        }
-
+        val zeroWidthModifier = Modifier
+            .width(0.dp)
+            .background(Color.White)
         LazyRow(
-            userScrollEnabled = opacity == 1f,
-            state = sharedState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
+            state = lazyListState,
+            modifier = if(opacity == 1f) fillMaxWidthModifier else zeroWidthModifier
         ) {
             items(20) { index ->
                 Column(
@@ -407,6 +426,7 @@ fun BooksListCategoryView(
 
             }
         }
+        
 
         Box(
             modifier = modifier
