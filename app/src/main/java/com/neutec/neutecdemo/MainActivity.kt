@@ -1,25 +1,19 @@
 package com.neutec.neutecdemo
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -30,8 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.neutec.neutecdemo.ui.theme.NeutecDemoTheme
 import androidx.navigation.compose.rememberNavController
-import com.neutec.neutecdemo.view.screen.LazyColumnOriginal
-import com.neutec.neutecdemo.view.screen.MyScreen
+import com.neutec.neutecdemo.view.screen.EventPageView
 import com.neutec.neutecdemo.view.screen.main.MainPage
 import com.neutec.neutecdemo.view.screen.notification.NotificationDetailPage
 import com.neutec.neutecdemo.view.screen.notification.NotificationPage
@@ -41,6 +34,7 @@ import com.neutec.neutecdemo.viewmodel.WebsocketViewModel
 class MainActivity : ComponentActivity() {
     private val viewModel: WebsocketViewModel by viewModels()
 
+    @RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,14 +61,16 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Page.Main.page
                         ) {
-                            MainPage(fullScreenNavController = fullScreenNavController, mainTabNavController = mainTabNavController)
+                            MainPage(
+                                fullScreenNavController = fullScreenNavController,
+                                mainTabNavController = mainTabNavController
+                            )
                         }
 
                         composable(
                             route = Page.Notification.page,
                         ) {
-//                            NotificationPage(fullScreenNavController = fullScreenNavController)
-                            MyScreen()
+                            NotificationPage(fullScreenNavController = fullScreenNavController)
                         }
 
                         composable(
@@ -86,16 +82,13 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Page.Event.page,
                         ) {
-//                            EventPage(fullScreenNavController = fullScreenNavController)
-//                            LazyColumnTest()
-                            LazyColumnOriginal()
+                            EventPageView(fullScreenNavController = fullScreenNavController)
                         }
 
                         composable(
                             route = Page.QRCodeScanner.page,
                         ) {
                             QRCodeScannerView(onQRCodeScanned = {
-                                Log.e("Jeff", "QRCodeScanned: $it")
                             })
                         }
                     }
@@ -103,6 +96,11 @@ class MainActivity : ComponentActivity() {
 //                    WsReconnectDialog()
                 }
             }
+        }
+
+        window.insetsController?.let {
+            it.hide(WindowInsets.Type.navigationBars())
+            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 }

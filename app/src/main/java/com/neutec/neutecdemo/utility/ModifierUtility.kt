@@ -37,10 +37,19 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 import android.graphics.BlurMaskFilter
 import android.graphics.BlurMaskFilter.Blur.NORMAL
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.TabPosition
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -206,6 +215,15 @@ fun Modifier.dragAndDrop(
         }
 }
 
+fun Modifier.neutecClickable(onClick: () -> Unit): Modifier = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    this.clickable(
+        interactionSource = interactionSource,
+        indication = null,  // 禁用水波纹效果
+        onClick = onClick
+    )
+}
+
 fun Modifier.customShadow(
     color: Color = Color.Black,
     offsetX: Dp = 0.dp,
@@ -236,6 +254,29 @@ fun Modifier.customShadow(
         }
     }
 )
+
+fun Modifier.customTabIndicatorOffset(
+    currentTabPosition: TabPosition,
+    tabWidth: Dp
+): Modifier = composed(
+    inspectorInfo = debugInspectorInfo {
+        name = "customTabIndicatorOffset"
+        value = currentTabPosition
+    }
+) {
+    val currentTabWidth by animateDpAsState(
+        targetValue = tabWidth,
+        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing), label = "currentTabWidth"
+    )
+    val indicatorOffset by animateDpAsState(
+        targetValue = ((currentTabPosition.left + currentTabPosition.right - tabWidth) / 2),
+        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing), label = "indicatorOffset"
+    )
+    fillMaxWidth()
+        .wrapContentSize(Alignment.BottomStart)
+        .offset(x = indicatorOffset)
+        .width(currentTabWidth)
+}
 
 
 

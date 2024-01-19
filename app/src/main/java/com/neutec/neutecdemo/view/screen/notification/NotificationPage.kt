@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -34,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -76,49 +73,17 @@ fun NotificationPage(fullScreenNavController: NavHostController) {
             .background(Color(0xFFFCFCFC))
             .padding(bottom = 15.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-        ) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .height(15.dp) // Adjust the height to control shadow size
-                .padding(horizontal = 2.dp) // Same horizontal padding as card
-                .align(Alignment.BottomCenter)
-                .graphicsLayer {
-                    shadowElevation = 30.dp.toPx()
-                    shape = RectangleShape
-                    clip = false
-                }
-                .background(Color.Transparent))
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = RoundedCornerShape(
-                    topStart = 0.dp, topEnd = 0.dp, bottomStart = 20.dp, bottomEnd = 20.dp
-                ),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White, contentColor = Color.Black
-                ),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    PageTopView(
-                        showBackIcon = true, title = "通知"
-                    ) {
-                        fullScreenNavController.popBackStack()
-                    }
-
-                    NotificationHorizontalTabView(animateScrollToTop)
-                }
-
+        PageTopView(
+            showBackIcon = true,
+            navigationBarBackground = Color.White,
+            title = "通知",
+            customNavigationBarRoundedRadius = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 20.dp, bottomEnd = 20.dp),
+            shadowElevationDp = 4.dp,
+            backIconClickEvent = {
+                fullScreenNavController.popBackStack()
             }
+        ) {
+            NotificationHorizontalTabView(animateScrollToTop)
         }
 
         Box(
@@ -141,9 +106,10 @@ fun NotificationPage(fullScreenNavController: NavHostController) {
 fun NotificationHorizontalTabView(animateScrollToTop: () -> Job) {
     Row(
         modifier = Modifier
+            .background(Color.White)
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 20.dp)
+            .padding(start = 10.dp, end = 10.dp, bottom = 20.dp)
     ) {
         TitleTabView(
             type = NotificationPageType.IMPORTANT,

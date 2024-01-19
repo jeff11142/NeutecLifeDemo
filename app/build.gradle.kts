@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.neutec.neutecdemo"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -100,4 +100,5 @@ dependencies {
     implementation("androidx.camera:camera-core:1.3.1")
     implementation("androidx.camera:camera-extensions:1.3.1")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("androidx.compose.material:material:1.5.4")
 }

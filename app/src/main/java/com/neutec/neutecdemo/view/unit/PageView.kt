@@ -4,20 +4,24 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,9 +40,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.neutec.neutecdemo.Config
 import com.neutec.neutecdemo.R
-import com.neutec.neutecdemo.utility.getStatusBarHeight
+import com.neutec.neutecdemo.ViewHeight
+import com.neutec.neutecdemo.ViewHeight.tabTopBarHeight
 import com.neutec.neutecdemo.utility.getStatusBarHeightInDp
+import com.neutec.neutecdemo.utility.neutecClickable
 import com.neutec.neutecdemo.viewmodel.WebsocketViewModel
 
 
@@ -45,62 +53,136 @@ import com.neutec.neutecdemo.viewmodel.WebsocketViewModel
 @Composable
 fun PageTopView(
     background: Color = Color.Transparent,
-    height: Dp = getStatusBarHeightInDp(),
-    statusBarBackground: Color = background,
-    modifier: Modifier = Modifier,
+    navigationBarModifier: Modifier = Modifier,
+    navigationBarBackground: Color = Color.White,
+    statusBarModifier: Modifier = Modifier,
+    statusBarBackground: Color = Color.White,
+    customNavigationBarHeight: MutableState<Int> = mutableStateOf(0),
     title: String = "",
+    customNavigationBarRoundedRadius: RoundedCornerShape = RoundedCornerShape(0.dp),
+    shadowElevationDp: Dp = 0.dp,
     showBackIcon: Boolean = false,
     showSearchIcon: Boolean = false,
-    backIconClickEvent: () -> Unit
+    showSortIcon: Boolean = false,
+    sortIconClickEvent: () -> Unit = {},
+    backIconClickEvent: () -> Unit = {},
+    customNavigationBarContent: @Composable () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = customNavigationBarRoundedRadius,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.Black
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = shadowElevationDp
+        )
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(statusBarBackground)
-                .height(height)
-        )
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(height)
-                .background(background)
-                .padding(start = 20.dp, end = 20.dp)
+                .background(Color.Transparent)
+                .onGloballyPositioned {
+                    customNavigationBarHeight.value = it.size.height
+                }
         ) {
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-
-            if (showBackIcon) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = "PageBack",
+            //status bar
+            Box(
+                modifier = statusBarModifier
+                    .fillMaxWidth()
+                    .height(getStatusBarHeightInDp())
+            ) {
+                Spacer(
                     modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            backIconClickEvent()
-                        }
-                        .align(Alignment.CenterStart)
+                        .fillMaxSize()
+                        .background(statusBarBackground)
                 )
             }
 
-            if (showSearchIcon) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
+            //Top Navigation Bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ViewHeight.pageTopNotificationBarHeight)
+                    .background(Color.Transparent)
+            ) {
+                Box(
+                    modifier = navigationBarModifier
+                        .fillMaxSize()
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(navigationBarBackground)
+                    )
+                }
+
+                Box(
                     modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            backIconClickEvent()
+                        .fillMaxSize()
+                        .background(Color.Transparent)
+                        .padding(start = 20.dp, end = 20.dp)
+                ) {
+                    //Title
+                    Text(
+                        text = title,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (showBackIcon) {
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowLeft,
+                                contentDescription = "PageBack",
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .neutecClickable {
+                                        backIconClickEvent()
+                                    }
+                            )
                         }
-                        .align(Alignment.CenterEnd)
-                )
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        if (showSortIcon) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                contentDescription = "Sort",
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .neutecClickable {
+                                        sortIconClickEvent()
+                                    }
+                            )
+                        }
+                        if (showSearchIcon) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "Search",
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .neutecClickable {
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+
+            //Content View
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(background)
+            ) {
+                customNavigationBarContent()
             }
         }
     }
@@ -113,12 +195,13 @@ fun TabTopBar(
     qrcodeIconClickEvent: () -> Unit,
     noticeIconClickEvent: () -> Unit
 ) {
+    val density = LocalDensity.current
     val topBarTitle = webSocketViewModel.topBarTitle.observeAsState()
     val topBarNewNotice = webSocketViewModel.topBarNewNotice.observeAsState()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .height(tabTopBarHeight)
             .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -148,7 +231,7 @@ fun TabTopBar(
             modifier = Modifier
                 .padding(end = 20.dp)
                 .size(20.dp)
-                .clickable {
+                .neutecClickable {
                     qrcodeIconClickEvent()
                 }
         )
@@ -159,7 +242,7 @@ fun TabTopBar(
             contentDescription = "Notifications",
             modifier = Modifier
                 .size(20.dp)
-                .clickable {
+                .neutecClickable {
                     noticeIconClickEvent()
                 }
         )

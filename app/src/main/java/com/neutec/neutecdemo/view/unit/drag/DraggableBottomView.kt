@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -22,10 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,21 +39,27 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.neutec.neutecdemo.R
+import com.neutec.neutecdemo.viewmodel.HomeViewModel
 
 @Composable
 fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
-    var viewHeight by rememberSaveable(saver = MutableStateDpSaver) { mutableStateOf(0.dp) }
+    val viewModel: HomeViewModel = viewModel()
+    val draggableBottomViewHeight =
+        viewModel.draggableBottomViewHeight.asLiveData().observeAsState()
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var needAnimateScroll by remember { mutableStateOf(false) }
     val density = LocalDensity.current
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val thresholdHeight = screenHeight * 4 / 5
     val maxCornerRadius = 60.dp
     val cornerRadius =
-        (maxCornerRadius * (1 - (viewHeight) / (screenHeight))).coerceIn(0.dp, maxCornerRadius)
+        (maxCornerRadius * (1 - (draggableBottomViewHeight.value
+            ?: bottomHeight.value) / (screenHeight))).coerceIn(0.dp, maxCornerRadius)
     var viewOnTop by remember { mutableStateOf(false) }
     val animatedHeight by animateDpAsState(
-        targetValue = viewHeight,
+        targetValue = draggableBottomViewHeight.value ?: 0.dp,
         label = "viewHeight",
         animationSpec = tween(
             durationMillis = 300,
@@ -61,21 +67,32 @@ fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
             easing = LinearOutSlowInEasing
         )
     ) {
-        viewOnTop = viewHeight == screenHeight
+        viewOnTop = (draggableBottomViewHeight.value ?: 0.dp) == screenHeight
+    }
+
+    LaunchedEffect(bottomHeight.value) {
+        if (draggableBottomViewHeight.value != null &&
+            draggableBottomViewHeight.value != 0.dp &&
+            draggableBottomViewHeight.value!! < bottomHeight.value
+        ) {
+            viewModel.setDraggableBottomViewHeight(bottomHeight.value)
+        }
     }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (needAnimateScroll) animatedHeight else viewHeight)
+            .height(
+                when {
+                    needAnimateScroll -> animatedHeight
+                    (draggableBottomViewHeight.value
+                        ?: 0.dp) < bottomHeight.value -> bottomHeight.value
+
+                    else -> draggableBottomViewHeight.value ?: 0.dp
+                }
+            )
             .background(Color.Transparent)
     ) {
-        LaunchedEffect(bottomHeight.value) {
-            if (viewHeight.value.dp == 0.dp) {
-                viewHeight = bottomHeight.value
-            }
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,16 +141,25 @@ fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
                                     detectVerticalDragGestures(
                                         onVerticalDrag = { change, dragAmount ->
                                             val dragAmountDp = with(density) { -dragAmount.toDp() }
-                                            val newHeight = viewHeight + dragAmountDp
-                                            viewHeight =
-                                                newHeight.coerceIn(bottomHeight.value, screenHeight)
+                                            val draggableDp =
+                                                draggableBottomViewHeight.value ?: 0.dp
+                                            viewModel.setDraggableBottomViewHeight(
+                                                draggableDp
+                                                    .plus(
+                                                        dragAmountDp
+                                                    )
+                                                    .coerceIn(bottomHeight.value, screenHeight)
+                                            )
                                             change.consume()
                                         },
                                         onDragEnd = {
-                                            // 手勢結束時的處理
-                                            if (viewHeight > thresholdHeight) {
+                                            val draggableDp =
+                                                draggableBottomViewHeight.value
+                                                    ?: 0.dp
+
+                                            if (draggableDp > thresholdHeight) {
                                                 needAnimateScroll = true
-                                                viewHeight = screenHeight
+                                                viewModel.setDraggableBottomViewHeight(screenHeight)
                                             } else {
                                                 needAnimateScroll = false
                                             }
@@ -150,7 +176,7 @@ fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
                                 .size(40.dp)
                                 .padding(start = 20.dp)
                                 .clickable {
-                                    viewHeight = bottomHeight.value
+                                    viewModel.setDraggableBottomViewHeight(bottomHeight.value)
                                     viewOnTop = false
                                 }
                                 .align(Alignment.TopStart)
@@ -161,8 +187,3 @@ fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
         }
     }
 }
-
-val MutableStateDpSaver: Saver<MutableState<Dp>, Float> = Saver(
-    save = { it.value.value },
-    restore = { mutableStateOf(Dp(it)) }
-)

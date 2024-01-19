@@ -109,7 +109,7 @@ fun MainPage(fullScreenNavController: NavHostController, mainTabNavController: N
                 NavigationBar(
                     containerColor = Color.Transparent
                 ) {
-                    items.forEachIndexed { index, item ->
+                    items.forEachIndexed { _, item ->
                         NavigationBarItem(
                             selected = currentRoute.value == item.tabStyle?.page,
                             onClick = {

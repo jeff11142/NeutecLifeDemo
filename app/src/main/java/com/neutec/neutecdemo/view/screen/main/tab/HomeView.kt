@@ -136,22 +136,23 @@ fun HomeView(
             )
             PushNotificationHorizontalPager(clickEvent = goToNotificationPage)
             LoopPromoteBanner()
-            QuickCategory{
+            QuickCategory {
                 fullScreenNavController.navigate(Page.Event.page)
             }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        bottomHeight.value = with(density) { coordinates.size.height.toDp() }
+
+            Box(modifier = Modifier
+                .weight(1f)
+                .onGloballyPositioned {
+                    bottomHeight.value = with(density) {
+                        it.size.height.toDp()
                     }
-            ) {
-                //此Box獲取的高度為DraggableBottomView的預設高度
-            }
+                })
         }
 
-        DraggableBottomView(modifier = Modifier.align(Alignment.BottomCenter), bottomHeight)
+        DraggableBottomView(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            bottomHeight = bottomHeight
+        )
     }
 }
 
@@ -359,6 +360,7 @@ fun ImportantNotificationItem(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun LoopPromoteBanner(homeViewModel: HomeViewModel = viewModel()) {
+    val density = LocalDensity.current
     val autoScroll = true
     val promoteBannerListState: State<MutableList<PromoteBanner>?> =
         homeViewModel.promoteBannerList.observeAsState()
@@ -369,7 +371,8 @@ fun LoopPromoteBanner(homeViewModel: HomeViewModel = viewModel()) {
     val pagerSize = if (promoteBannerList.size > 1) Int.MAX_VALUE else 1
     var autoScrollJob: Job? = null
     val autoScrollTime = remember { mutableIntStateOf(0) }
-    val itemHeight = calculateHeightFromScreenWidth(LocalConfiguration.current, LocalDensity.current, 800, 280)
+    val itemHeight =
+        calculateHeightFromScreenWidth(LocalConfiguration.current, LocalDensity.current, 800, 280)
 
     ShimmerBox(
         boxModifier = Modifier
@@ -560,7 +563,10 @@ fun HighlightedCircles(
 }
 
 @Composable
-fun QuickCategory(homeViewModel: HomeViewModel = viewModel(), clickEvent: (type: ShortCutType) -> Unit) {
+fun QuickCategory(
+    homeViewModel: HomeViewModel = viewModel(),
+    clickEvent: (type: ShortCutType) -> Unit
+) {
     val quickCategoryList = homeViewModel.quickCategoryList.observeAsState()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val itemWidth = screenWidth / 4
