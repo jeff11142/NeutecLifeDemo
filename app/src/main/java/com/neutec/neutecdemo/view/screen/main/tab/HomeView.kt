@@ -73,6 +73,7 @@ import com.neutec.neutecdemo.Page
 import com.neutec.neutecdemo.ShortCutType
 import com.neutec.neutecdemo.utility.calculateHeightFromScreenWidth
 import com.neutec.neutecdemo.utility.floorMod
+import com.neutec.neutecdemo.utility.neutecClickable
 import com.neutec.neutecdemo.view.unit.drag.DraggableBottomView
 import com.neutec.neutecdemo.view.unit.ShimmerBox
 import com.neutec.neutecdemo.view.unit.TabTopBar
@@ -317,7 +318,7 @@ fun ImportantNotificationItem(
                     contentDescription = "closeNotification",
                     modifier = Modifier
                         .size(15.dp)
-                        .clickable {
+                        .neutecClickable {
                             closeEvent()
                         }
                 )
@@ -601,7 +602,7 @@ fun QuickCategory(
                             bottom = 10.dp
                         )
                         .size(itemWidth)
-                        .clickable {
+                        .neutecClickable {
                             clickEvent(ShortCutType.values()[it])
                         }
                 ) {

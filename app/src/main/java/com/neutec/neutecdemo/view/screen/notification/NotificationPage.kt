@@ -45,6 +45,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.neutec.neutecdemo.Page
 import com.neutec.neutecdemo.R
+import com.neutec.neutecdemo.utility.neutecClickable
 import com.neutec.neutecdemo.view.unit.PageTopView
 import com.neutec.neutecdemo.viewmodel.NotificationPageType
 import com.neutec.neutecdemo.viewmodel.NotificationPageViewModel
@@ -143,7 +144,7 @@ fun TitleTabView(type: NotificationPageType, modifier: Modifier, animateScrollTo
     }
 
     Box(
-        modifier = modifier.clickable {
+        modifier = modifier.neutecClickable {
             notificationPageViewModel.changeNowPage(type.text)
             animateScrollToTop()
         }, contentAlignment = Alignment.Center
@@ -211,7 +212,7 @@ fun CategoryView(animateScrollToTop: () -> Job) {
                     .wrapContentHeight()
                     .padding(start = paddingStart, end = paddingEnd)
                     .border(borderDp, Color.LightGray, RoundedCornerShape(15.dp))
-                    .clickable {
+                    .neutecClickable {
                         notificationPageViewModel.changeNowCategory(categoryList?.get(it))
                         animateScrollToTop()
                     },
@@ -316,7 +317,7 @@ fun NotificationList(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(200.dp)
-                    .clickable {}
+                    .neutecClickable {}
                     .align(Alignment.Center))
         }
 
@@ -358,7 +359,7 @@ fun NotificationListItem(
             .fillMaxWidth()
             .padding(start = 20.dp, end = 20.dp, top = 1.dp, bottom = 19.dp)
             .height(150.dp)
-            .clickable {
+            .neutecClickable {
                 if (data?.content?.isNotEmpty() == true) {
                     clickEvent()
                 }

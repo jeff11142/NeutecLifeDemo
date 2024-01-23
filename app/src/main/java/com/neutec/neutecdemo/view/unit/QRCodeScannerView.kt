@@ -45,6 +45,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.neutec.neutecdemo.utility.neutecClickable
 import com.neutec.neutecdemo.view.unit.QRCodeManager.detectedDialogOpen
 import com.neutec.neutecdemo.view.unit.QRCodeManager.stopAnalysis
 import java.util.concurrent.ExecutorService
@@ -207,7 +208,7 @@ fun DialogButton(
                 color = buttonColor,
                 shape = RoundedCornerShape(percent = cornerRadiusPercent)
             )
-            .clickable {
+            .neutecClickable {
                 onDismiss()
             }
             .padding(horizontal = 16.dp, vertical = 6.dp)

@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.neutec.neutecdemo.R
+import com.neutec.neutecdemo.utility.neutecClickable
 import com.neutec.neutecdemo.viewmodel.HomeViewModel
 
 @Composable
@@ -175,7 +176,7 @@ fun DraggableBottomView(modifier: Modifier, bottomHeight: MutableState<Dp>) {
                             modifier = Modifier
                                 .size(40.dp)
                                 .padding(start = 20.dp)
-                                .clickable {
+                                .neutecClickable {
                                     viewModel.setDraggableBottomViewHeight(bottomHeight.value)
                                     viewOnTop = false
                                 }

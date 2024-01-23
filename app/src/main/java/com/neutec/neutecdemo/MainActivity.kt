@@ -13,10 +13,12 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val context = LocalContext.current
             val fullScreenNavController = rememberNavController()
             val mainTabNavController = rememberNavController()
             NeutecDemoTheme {
@@ -70,7 +73,8 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Page.Notification.page,
                         ) {
-                            NotificationPage(fullScreenNavController = fullScreenNavController)
+//                            NotificationPage(fullScreenNavController = fullScreenNavController)
+                            EventPageView(fullScreenNavController = fullScreenNavController)
                         }
 
                         composable(
@@ -96,12 +100,22 @@ class MainActivity : ComponentActivity() {
 //                    WsReconnectDialog()
                 }
             }
+
+            // 当您需要隐藏导航栏时
+//            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
+//                (context as? Activity)?.window?.apply {
+//                    // 隐藏状态栏
+//                    addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+//                    // 隐藏导航栏
+//                    decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE
+//                }
+//            }
         }
 
-        window.insetsController?.let {
-            it.hide(WindowInsets.Type.navigationBars())
-            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
+//        window.insetsController?.let {
+//            it.hide(WindowInsets.Type.navigationBars())
+//            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+//        }
     }
 }
 

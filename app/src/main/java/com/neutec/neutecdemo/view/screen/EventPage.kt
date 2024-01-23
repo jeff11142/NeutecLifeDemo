@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -245,7 +246,6 @@ fun EventPageView(fullScreenNavController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-//                .navigationBarsPadding()
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -596,14 +596,6 @@ fun CustomStickerHeader(
                             .background(Color.White),
                         backgroundColor = Color.White,
                         contentColor = Color.Black,
-                        indicator = { tabPositions ->
-//                            TabRowDefaults.Indicator(
-//                                modifier = Modifier.customTabIndicatorOffset(
-//                                    currentTabPosition = tabPositions[selectedTabIndex],
-//                                    tabWidth = // ToDo - Explained next.
-//                                )
-//                            )
-                        },
                         divider = {},
                         edgePadding = 20.dp,
                         contentPadding = 20.dp,
@@ -874,13 +866,13 @@ fun EventItem(
                             .wrapContentHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = painterResource(R.mipmap.star_icon),
-                            contentDescription = "star",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(10.dp)
-                        )
+//                        Image(
+//                            painter = painterResource(R.mipmap.star_icon),
+//                            contentDescription = "star",
+//                            contentScale = ContentScale.Crop,
+//                            modifier = Modifier
+//                                .size(10.dp)
+//                        )
 
                         Text(
                             text = "${data.evaluate}",

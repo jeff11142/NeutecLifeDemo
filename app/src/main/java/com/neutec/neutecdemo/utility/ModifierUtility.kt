@@ -59,7 +59,7 @@ fun Modifier.noRapidClick(
 ): Modifier {
     return composed {
         var lastClickTimestamp by remember { mutableLongStateOf(0L) }
-        this.clickable {
+        this.neutecClickable {
             val currentTimestamp = System.currentTimeMillis()
             if (currentTimestamp - lastClickTimestamp >= intervalMillis) {
                 lastClickTimestamp = currentTimestamp
