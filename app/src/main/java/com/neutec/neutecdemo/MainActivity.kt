@@ -60,7 +60,11 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    NavHost(fullScreenNavController, startDestination = Page.Main.page) {
+                    NavHost(
+                        modifier = Modifier.navigationBarsPadding(),
+                        navController = fullScreenNavController,
+                        startDestination = Page.Main.page
+                    ) {
                         composable(
                             route = Page.Main.page
                         ) {
@@ -73,8 +77,8 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = Page.Notification.page,
                         ) {
-//                            NotificationPage(fullScreenNavController = fullScreenNavController)
-                            EventPageView(fullScreenNavController = fullScreenNavController)
+                            NotificationPage(fullScreenNavController = fullScreenNavController)
+//                            EventPageView(fullScreenNavController = fullScreenNavController)
                         }
 
                         composable(

@@ -101,4 +101,5 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.1")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("androidx.compose.material:material:1.5.4")
+    implementation("androidx.compose.material3:material3:1.2.0")
 }

@@ -1,6 +1,7 @@
 package com.neutec.neutecdemo.view.screen
 
 import CustomScrollableTabRow
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -104,6 +105,7 @@ data class EventItemData(
     val commentsCount: Int?
 )
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun EventPageView(fullScreenNavController: NavHostController) {
@@ -753,7 +755,6 @@ fun BottomSheetView(itemClick: (String) -> Job) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-//                .navigationBarsPadding()
         ) {
             items(list.size) { position ->
                 val isCurrentSort = booksSort.value == list[position]
@@ -866,13 +867,13 @@ fun EventItem(
                             .wrapContentHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-//                        Image(
-//                            painter = painterResource(R.mipmap.star_icon),
-//                            contentDescription = "star",
-//                            contentScale = ContentScale.Crop,
-//                            modifier = Modifier
-//                                .size(10.dp)
-//                        )
+                        Image(
+                            painter = painterResource(R.mipmap.star_icon),
+                            contentDescription = "star",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(10.dp)
+                        )
 
                         Text(
                             text = "${data.evaluate}",
