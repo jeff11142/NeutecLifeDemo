@@ -60,12 +60,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +76,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.updateBounds
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -498,6 +503,11 @@ fun CustomStickerHeader(
     val density = LocalDensity.current
     var selectedTabIndex by remember { mutableStateOf(0) }
     val categoryList = getEventPageBooksCategoryListData()
+    val bgImg = ContextCompat.getDrawable(
+        LocalContext.current,
+        R.drawable.bg3
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -510,76 +520,87 @@ fun CustomStickerHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(pageTopNotificationBarHeight.times(2)),
-            shape = RoundedCornerShape(
-                topStart = stickerHeaderTopRadius,
-                topEnd = stickerHeaderTopRadius,
-                bottomEnd = roundRadius.value,
-                bottomStart = roundRadius.value
-            ),
+//            shape = RoundedCornerShape(
+//                topStart = stickerHeaderTopRadius,
+//                topEnd = stickerHeaderTopRadius,
+//                bottomEnd = roundRadius.value,
+//                bottomStart = roundRadius.value
+//            ),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
             ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 4.dp
-            )
+//            elevation = CardDefaults.cardElevation(
+//                defaultElevation = 4.dp
+//            )
         ) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .drawBehind {
+                            bgImg?.updateBounds(0, 0, size.width.toInt(), size.height.toInt())
+                            bgImg?.draw(drawContext.canvas.nativeCanvas)
+                        }
                 ) {
-                    Text(
-                        text = "書籍列表",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .wrapContentHeight()
-                            .wrapContentWidth()
-                            .clip(RoundedCornerShape(buttonRadius))
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(buttonRadius))
-                            .background(Color.White)
-                            .neutecClickable {
-                                openBottomSheet()
-                            },
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+//                            .weight(1f)
+                            .padding(start = 20.dp, end = 20.dp, top = 15.dp, bottom = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                end = 10.dp,
-                                top = 5.dp,
-                                bottom = 5.dp
-                            ),
-                            verticalAlignment = Alignment.CenterVertically
+                        Text(
+                            text = "書籍列表",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Box(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .wrapContentWidth()
+                                .clip(RoundedCornerShape(buttonRadius))
+                                .border(1.dp, Color.LightGray, RoundedCornerShape(buttonRadius))
+                                .background(Color.White)
+                                .neutecClickable {
+                                    openBottomSheet()
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            AnimatedContent(
-                                targetState = booksSort.value ?: "",
-                                transitionSpec = {
-                                    EnterTransition.None togetherWith ExitTransition.None
-                                }, label = ""
-                            ) { bookSortString ->
-                                Text(
-                                    text = bookSortString,
-                                    fontSize = 13.sp,
-                                    color = Color.Black,
+                            Row(
+                                modifier = Modifier.padding(
+                                    start = 10.dp,
+                                    end = 10.dp,
+                                    top = 5.dp,
+                                    bottom = 5.dp
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AnimatedContent(
+                                    targetState = booksSort.value ?: "",
+                                    transitionSpec = {
+                                        EnterTransition.None togetherWith ExitTransition.None
+                                    }, label = ""
+                                ) { bookSortString ->
+                                    Text(
+                                        text = bookSortString,
+                                        fontSize = 13.sp,
+                                        color = Color.Black,
+                                    )
+                                }
+
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowDropDown,
+                                    contentDescription = "books arrangement"
                                 )
                             }
-
-                            Icon(
-                                imageVector = Icons.Filled.ArrowDropDown,
-                                contentDescription = "books arrangement"
-                            )
                         }
                     }
                 }
@@ -867,13 +888,13 @@ fun EventItem(
                             .wrapContentHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = painterResource(R.mipmap.star_icon),
-                            contentDescription = "star",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(10.dp)
-                        )
+//                        Image(
+//                            painter = painterResource(R.mipmap.star_icon),
+//                            contentDescription = "star",
+//                            contentScale = ContentScale.Crop,
+//                            modifier = Modifier
+//                                .size(10.dp)
+//                        )
 
                         Text(
                             text = "${data.evaluate}",
